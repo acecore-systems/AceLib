@@ -2,7 +2,7 @@ package org.astarisucu.aceLib;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class AceLib extends JavaPlugin {
+public final class  AceLib extends JavaPlugin {
 
     @Override
     public void onEnable() {
