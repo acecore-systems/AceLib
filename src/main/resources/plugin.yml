@@ -1,0 +1,4 @@
+name: AceLib
+version: '1.0-SNAPSHOT'
+main: org.astarisucu.aceLib.AceLib
+api-version: '1.21'
