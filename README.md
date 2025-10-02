@@ -25,7 +25,7 @@ open(Player);<br>
 open this InventoryUI.<br>
 Internally, it uses the build method.
 
-## Example
+### Example
 ```java
 testUI = new InvUI("test_ui", this, 27, "テストメニュー");
 testUI.addButton(11, "ダイヤをもらう", "DIAMOND", player -> {
@@ -38,3 +38,20 @@ testUI.addButton(15, "閉じる", "BARRIER", player -> {
 testUI.open(player);
 ```
 ![img.png](img.png)
+
+## UIRegister
+### How to Use
+```java
+    ItemStack icon = new ItemStack(Somethins.Material);
+    InvUI ui = new InvUI("id",plugin,size,"title");
+    ui.addButton(slot,"name1","materialID",player->{method});
+    ui.addButton(slot,"name2","materialID",player->{method});
+    //add some Buttons
+    ~~
+    //create UI Data
+    UIRegisterData data = new UIRegisterData(plugin, "subGame1", icon, ui);
+    
+    //Register Event
+    Bukkit.getServer().getPluginManager().callEvent(new UIRegisterEvent(data));
+```
+
