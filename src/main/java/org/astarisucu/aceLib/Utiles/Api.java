@@ -11,10 +11,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class Api {
-    private static final String BASE_URL = "http://localhost:8000"; // APIサーバーURL
+    private static String BASE_URL =null;
     private static final String OPENAPI_URL = BASE_URL + "/openapi.json";
     private static Map<String, ApiDefinition> apiMap = null;
     private static final Gson gson = new Gson();
+    public static void loadBaseURL(String s){
+        BASE_URL=s;
+    }
     public static void loadOpenAPI() throws IOException {
         if (apiMap != null) return;
 
@@ -64,17 +67,14 @@ public class Api {
                             endpoint, expected, args.length));
         }
 
-        // 引数をフィールド名と対応付け
         Map<String, Object> jsonMap = new LinkedHashMap<>();
         int i = 0;
         for (String field : def.fieldTypes.keySet()) {
             jsonMap.put(field, args[i++]);
         }
 
-        // JSON作成
         String jsonBody = gson.toJson(jsonMap);
 
-        // POST送信
         URL url = new URL(BASE_URL + "/" + endpoint);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
