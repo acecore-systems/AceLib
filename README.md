@@ -54,4 +54,17 @@ testUI.open(player);
     //Register Event
     Bukkit.getServer().getPluginManager().callEvent(new UIRegisterEvent(data));
 ```
+## API Util
+### How to Use
+```java
+    Map<String, Object> winData = Api.RequestAPI("game_result/wins", 10, 2);
+    System.out.println("ゲーム名: " + winData.get("game_name"));
+    System.out.println("勝利数: " + winData.get("wins"));
 
+    Map<String, Object> record = AcelibAPI.RequestAPI("game_result/recode", 10, 2, true);
+    System.out.println(record.get("success"));
+```
+Api.Request("endPoint",schemas)
+return Map<String,Object(result)>
+
+This method automatically retrieves the structure from the API's `/openapi.json`, so there is no need to update the library every time the API is updated.
