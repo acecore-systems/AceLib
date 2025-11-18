@@ -70,9 +70,7 @@ public class InvUI implements Listener {
 
     // プレイヤーにUIを開かせる
     public void open(Player player) {
-        if (inventory == null) {
-            build();
-        }
+        build();
         player.openInventory(inventory);
     }
 
