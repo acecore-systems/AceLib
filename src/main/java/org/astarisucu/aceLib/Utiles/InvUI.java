@@ -70,8 +70,7 @@ public class InvUI implements Listener {
 
     // プレイヤーにUIを開かせる
     public void open(Player player) {
-        build();
-        player.openInventory(inventory);
+        player.openInventory(build());
     }
 
     @EventHandler
@@ -87,6 +86,18 @@ public class InvUI implements Listener {
                 buttons.get(slot).action().accept(player);
             }
         }
+    }
+
+    public void updateUI(Player player) {
+        if (this.inventory == null) {
+            return;
+        }
+        this.inventory.clear();
+
+        for (Map.Entry<Integer, Button> entry : buttons.entrySet()) {
+            this.inventory.setItem(entry.getKey(), entry.getValue().item());
+        }
+        player.updateInventory();
     }
 
     // 内部的にボタンを保持するクラス
