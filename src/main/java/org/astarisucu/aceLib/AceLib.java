@@ -16,13 +16,13 @@ public final class  AceLib extends JavaPlugin {
         }
 
         org.bukkit.configuration.file.FileConfiguration cfg = this.getConfig();
-        Api.loadBaseURL(cfg.getString("api.baseUrl", "http://localhost:8000"));
-
-        try {
-            Api.loadOpenAPI();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+//        Api.loadBaseURL(cfg.getString("api.baseUrl", "http://localhost:8000"));
+//
+//        try {
+//            Api.loadOpenAPI();
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
 
 
 
