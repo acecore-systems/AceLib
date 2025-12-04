@@ -13,6 +13,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class InvUI implements Listener {
@@ -21,23 +22,24 @@ public class InvUI implements Listener {
     private final Plugin plugin;
     private final int size;
     private final String title;
+
+    // プレイヤーごとの Inventory
+    private final Map<UUID, Inventory> inventories = new HashMap<>();
+
     private final Map<Integer, Button> buttons = new HashMap<>();
-    private Inventory inventory;
 
     public InvUI(String id, Plugin plugin, int size, String title) {
         this.id = id;
         this.plugin = plugin;
         this.size = size;
         this.title = title;
+
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
-    // ボタン追加
     public void addButton(int slot, String name, String materialId, Consumer<Player> action) {
         Material mat = Material.matchMaterial(materialId);
-        if (mat == null) {
-            mat = Material.BARRIER; // 無効なIDならバリアで代替
-        }
+        if (mat == null) mat = Material.BARRIER;
 
         ItemStack item = new ItemStack(mat);
         ItemMeta meta = item.getItemMeta();
@@ -49,58 +51,52 @@ public class InvUI implements Listener {
         buttons.put(slot, new Button(item, action));
     }
 
-    // ボタン削除
     public void deleteButton(int slot) {
         buttons.remove(slot);
     }
 
-    // ボタンデータを取得
-    public Map<Integer, Button> getButton() {
-        return buttons;
-    }
-
-    // UIを完成させる
-    public Inventory build() {
-        inventory = Bukkit.createInventory(null, size, title);
-        for (Map.Entry<Integer, Button> entry : buttons.entrySet()) {
-            inventory.setItem(entry.getKey(), entry.getValue().item());
+    // 特定プレイヤー用インベントリ作成
+    private Inventory build(Player player) {
+        Inventory inv = Bukkit.createInventory(player, size, title);
+        for (Map.Entry<Integer, Button> e : buttons.entrySet()) {
+            inv.setItem(e.getKey(), e.getValue().item());
         }
-        return inventory;
+        inventories.put(player.getUniqueId(), inv);
+        return inv;
     }
 
-    // プレイヤーにUIを開かせる
     public void open(Player player) {
-        player.openInventory(build());
+        Inventory inv = build(player);
+        player.openInventory(inv);
     }
 
-    @EventHandler
-    public void onClick(InventoryClickEvent event) {
-        if (inventory == null) return;
-        if (!event.getView().getTitle().equals(title)) return;
-        if (event.getClickedInventory() == null) return;
-
-        int slot = event.getSlot();
-        if (buttons.containsKey(slot)) {
-            event.setCancelled(true);
-            if (event.getWhoClicked() instanceof Player player) {
-                buttons.get(slot).action().accept(player);
-            }
-        }
-    }
-
+    // 更新（プレイヤー専用）
     public void updateUI(Player player) {
-        if (this.inventory == null) {
-            return;
-        }
-        this.inventory.clear();
+        Inventory inv = inventories.get(player.getUniqueId());
+        if (inv == null) return;
 
-        for (Map.Entry<Integer, Button> entry : buttons.entrySet()) {
-            this.inventory.setItem(entry.getKey(), entry.getValue().item());
+        inv.clear();
+        for (Map.Entry<Integer, Button> e : buttons.entrySet()) {
+            inv.setItem(e.getKey(), e.getValue().item());
         }
         player.updateInventory();
     }
 
-    // 内部的にボタンを保持するクラス
-        public record Button(ItemStack item, Consumer<Player> action) {
+    @EventHandler
+    public void onClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+
+        Inventory inv = inventories.get(player.getUniqueId());
+        if (inv == null) return;
+        if (!event.getView().getTitle().equals(title)) return;
+        if (event.getClickedInventory() != inv) return;
+
+        int slot = event.getSlot();
+        if (buttons.containsKey(slot)) {
+            event.setCancelled(true);
+            buttons.get(slot).action().accept(player);
+        }
     }
+
+    public record Button(ItemStack item, Consumer<Player> action) {}
 }
